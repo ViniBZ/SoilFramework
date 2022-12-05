@@ -1,0 +1,22 @@
+Create a subclass of SoilControl. In it you will have:
+	*The constructor where you would initialize all your stuff
+	execution_started_response();
+	soil_signal_response(...);
+	sdl_event_response(...);
+
+Create an instance of SoilEngine in the SoilControl object.
+The event loop will run in SoilEngine::execute()
+
+Make the UI by creating a SoilLayout and set it as main layout of the SoilEngine object:
+
+Add the elements to the layout using SoilLayout::add_elm()
+
+Activate the event that will trigger your function using:
+
+SoilEngine::activate_soil_signal(SoilUIElm* elm,SOIL_SIGNAL signal, int response);
+SoilEngine::activate_sdl_event(SDL_EventType event_type, int response);
+
+The ones supposed to be UI elements inherit from SoilWidget or SoilLayout and both inherit from SoilUIElm
+
+
+
