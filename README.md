@@ -1,4 +1,4 @@
-General purpose application UI framework. See ABOUT.txt for more
+General purpose application UI framework. See BUILDING_IT.txt for more
 
 This version of the SoilFramework uses SDL2.0 and SDL_image 2.0
 and it should work with the subsequent versions prior to 3.0.
