@@ -11,6 +11,7 @@ public:
     void init();
     void set_font_size(int fs);
     void keydown_event_virt(SDL_Event E);
+    void draw();
 };
 
 #endif // SOILINPUT_H

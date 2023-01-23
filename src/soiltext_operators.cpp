@@ -472,7 +472,7 @@ bool SoilText::unselect_text()
     text_selected = false;
     if(prev_selected)
     {
-        text_changed = true;
+        text_sel_changed = true;
         this_changed();
     }
 
@@ -721,7 +721,6 @@ bool SoilText::draw_text_rect_px(SOIL_RECT orig_rect, SoilPixmap* dest_pixmap, S
     SIZE char_size = SoilFont::get_char_size_from_font_size(font_size);
     
     //IMPORTANT:orig_rect is in pixels, the actual position in text depends on char_size/font_size
-
     if(!validate_rect_in_size(&dest_rect, dest_pixmap->size)){return false;}
 
     SIZE text_size;
@@ -818,6 +817,7 @@ bool SoilText::draw_text_rect_px(SOIL_RECT orig_rect, SoilPixmap* dest_pixmap, S
     }
 
     text_changed = false;
+    text_sel_changed = false;
 
     //int ind = cursor_pos_from_coord()
 
@@ -892,6 +892,7 @@ bool SoilText::draw_full_px(SoilPixmap* dest_pixmap, POINT text_dest_offset, Soi
     }
 
     text_changed = false;
+    text_sel_changed = false;
     
 return true;
 }

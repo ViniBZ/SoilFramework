@@ -2,6 +2,7 @@
 #define SOILFONT_H
 
 #include "soilpixmap.h"
+#include "soilstring.h"
 
 //the values for the the char rects are in alloc_font
 class SoilFont

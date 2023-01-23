@@ -22,13 +22,13 @@ void SoilInput::init()
     scrollable = false;
     set_auto_size(false,false);
     set_follow_text_w(false);
-    soil_text.MULTI_LINE = false;
+    soil_text.set_multi_line(false);
     set_as_clickable_item(false);
     set_default_command_map();
     set_code_edit_special_shortcuts(true);
 
 
-    soil_string = &soil_text.soil_string;
+    //soil_string_pt = &soil_text.soil_string;
     edit_extra_w_content=0;
     action_n=0;
     //DONE REGARDLESS OF WIDGET TYPE
@@ -100,4 +100,9 @@ void SoilInput::keydown_event_virt(SDL_Event E)
     }else{
         SoilTextWidget::keydown_event_virt(E);
     }
+}
+//---------------------------------------------- DRAW
+void SoilInput::draw()
+{
+    SoilTextWidget::draw();
 }

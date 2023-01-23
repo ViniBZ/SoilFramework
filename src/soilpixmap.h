@@ -15,9 +15,8 @@ class SoilPixmap : public SoilObject
 {
 public:
 
-    //MARKER: make a dynamic allocation system like the membounds for SoilPixmap 
+    //MARKER: make a dynamic allocation system like the membounds for SoilPixmap
     //so it doesnt have to be allocating all the time in SoilTextWidget for example
-
     bool loaded;
     bool mono_mode;
     bool color_mode;
@@ -66,11 +65,13 @@ public:
     void spx_invert_colors();
     void spx_alpha_blend(const SoilPixmap& orig, SOIL_RECT orig_rect,SOIL_RECT paste_rect);//on top of THIS px
 
+    void spx_draw_aa_line(POINT start, POINT end, int bold, unsigned char color);
+    void spx_draw_aa_line(POINT start, POINT end, int bold, Uint32 color);
     void spx_draw_h_line(POINT start, int end_x, unsigned char color);
     void spx_draw_h_line(POINT start, int end_x, Uint32 color);
     void spx_draw_v_line(POINT start, int end_y, unsigned char color);
     void spx_draw_v_line(POINT start, int end_y, Uint32 color);
-    void spx_draw_cursor_line(POINT start, int end_y, unsigned char color);
+    void spx_draw_cursor_line(POINT start, int end_y, unsigned char color);//text cursor
     void spx_draw_cursor_line(POINT start, int end_y, Uint32 color);
     void spx_draw_outline_rect(SOIL_RECT rect,int bold, unsigned char color);
     void spx_draw_outline_rect(SOIL_RECT rect,int bold, Uint32 color);

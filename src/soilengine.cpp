@@ -8,9 +8,15 @@ SoilEngine::SoilEngine()
 
     if(!the_one_engine){return;}
 
+    init_sdl_event_signals();
+
+    resource_dir_str = "./";
     active_ui = 0;
 
     sdl_reset_gui_pt(&sdl_gui_pt);
+
+    title_loaded = false;
+    icon_loaded = false;
 
     window_size.w = 600;
     window_size.h = 400;
@@ -26,7 +32,7 @@ SoilEngine::SoilEngine()
     WINDOW_USER_RESIZABLE = true;
 
     main_layout = NULL;
-    
+    //modal_layout = NULL;
     external_control = NULL;
     external_control_is_set = false;
     execution_started_active = false;
@@ -37,7 +43,13 @@ SoilEngine::SoilEngine()
     if(!the_one_engine){return;}
 
     engine_control = new SoilEngineControl();
+    //engine_control->set_soilobject_receiver(0, (SoilObject*)this);
 
+}
+SoilEngine::~SoilEngine()
+{
+    delete engine_control;
+    delete[] SDL_EVENT_SIGNALS;
 }
 
 //--------------------------------------------------- INIT SDL EVENT SIGNALS
@@ -45,8 +57,7 @@ void SoilEngine::init_sdl_event_signals()
 {
     if(!the_one_engine || sdl_gui_pt.sdl_gui_loaded){return;}
 
-
-
+    SDL_EVENT_SIGNALS = new SDL_EVENT_SIGNAL[65536];
 
     int i = 0;
     while(i < 65536)
@@ -55,7 +66,6 @@ void SoilEngine::init_sdl_event_signals()
         SDL_EVENT_SIGNALS[i].response = 0;
         i++;
     }
-
 }
 
 //--------------------------------------------------- SET MAIN LAYOUT
@@ -63,15 +73,47 @@ void SoilEngine::set_main_layout(SoilLayout* l)
 {
     if(!the_one_engine || sdl_gui_pt.sdl_gui_loaded){return;}
 
-
-
     if(main_layout != NULL){return;}
     if(l == NULL){return;}
     main_layout = l;
     main_layout->set_as_main_layout();
 
 }
+//--------------------------------------------------- LOAD WINDOW ICON
+void SoilEngine::set_window_title(const char * title)
+{
+    window_title = title;
+    if(window_title.get_length() > 0)
+    {
+        title_loaded = true;
+    }
+}
+//--------------------------------------------------- LOAD WINDOW ICON
+void SoilEngine::set_window_icon(const char * icon_fn)
+{
+    icon_surface = IMG_Load(icon_fn);
+    if(icon_surface != NULL)
+    {
+        icon_loaded = true;
+    }   
+}
+//--------------------------------------------------- SET RESOURCE SUBDIR
+void SoilEngine::set_resources_subdir(const char * sub_dir)
+{
+    resource_dir_str.append(sub_dir);
 
+    int l = resource_dir_str.get_length();
+    SOIL_CHAR last_sch = resource_dir_str.at(l-1);
+    bool fslash = false;
+    if(last_sch.N == 1 && last_sch.B[0] == '/')
+    {
+        fslash = true;
+    }
+    if(!fslash)
+    {
+        resource_dir_str.append('/');
+    }
+}
 //--------------------------------------------------- LOAD ALERT WINDOW
 void SoilEngine::load_alert_window()
 {
@@ -83,13 +125,13 @@ void SoilEngine::set_control(SoilControl* c)
 {
     if(!the_one_engine || sdl_gui_pt.sdl_gui_loaded){return;}
  
-
     if(c != NULL)
     {
         external_control = c;
         external_control_is_set = true;
     }
 }
+
 //--------------------------------------------------- SET USER RESIZABLE
 void SoilEngine::set_window_user_resizable(bool v)
 {
@@ -106,6 +148,8 @@ int SoilEngine::execute()
 {
 
     if(!the_one_engine || sdl_gui_pt.sdl_gui_loaded){return -4;}
+
+
 
     //INIT WINDOW
     //window is being created as HIDDEN(just a reminder)
@@ -151,6 +195,10 @@ int SoilEngine::execute()
     update_window_from_main_layout();
     SDL_ShowWindow(sdl_gui_pt.sdl_window);
 
+
+
+    //MARKER: verify why the main layout doesn't start with the window size
+
     //main_layout->elm_ui_flag is set on the set_as_main_layout() method
     //in SoilLayout
     update_main_layout_from_window();
@@ -167,6 +215,7 @@ int SoilEngine::execute()
         external_control->execution_started_response();
     }
 
+    //main_layout->recursive_print_log();
     SDL_GetWindowSize(sdl_gui_pt.sdl_window,&win_w,&win_h);
 
 
@@ -175,6 +224,7 @@ int SoilEngine::execute()
 
     int mouse_e=0;
 
+    //main_layout->recursive_print_log();
     while(!quit)
     {
 
@@ -418,6 +468,8 @@ int SoilEngine::execute()
         while(signal != NULL)
         {
             //PROCESSING
+            
+
             if(external_control_is_set)
             {
                 external_control->soil_signal_response(*signal);
@@ -434,18 +486,18 @@ int SoilEngine::execute()
         //elm flag processing
         //different flags from the same element shouldn't have the same value
     
-        engine_control->reset_EF();
-        ELM_FLAG* flag = engine_control->next_EF();
+        engine_control->reset_OF();
+        OBJ_FLAG* flag = engine_control->next_OF();
         while(flag != NULL)
         {
             if(flag->value == 0)
             {
-                engine_control->pop_EF();
+                engine_control->pop_OF();
             }else{
                 //PROCESSING
                 if(flag->interval <= 0)
                 {
-                    flag->elm->process_flag(flag->value);
+                    flag->obj->process_flag(flag->value);
 
                 }else{
 
@@ -454,7 +506,7 @@ int SoilEngine::execute()
                 }
             }
 
-            flag = engine_control->next_EF();
+            flag = engine_control->next_OF();
         }
 
         //////////////////////////////////////////////////// RELOAD UI
@@ -465,6 +517,11 @@ int SoilEngine::execute()
         
         update_view();
         
+
+        //fprintf(debug_file,"\nMOUSE OVER ELM ID:%d",engine_control->mouse_over_elm_id);
+
+
+
         //////////////////////////////////////////////////// CYCLE CONTROL
         cycle_cur_c=SDL_GetTicks();
 
@@ -481,6 +538,8 @@ int SoilEngine::execute()
             SDL_Delay(cycle_comp);
             prev_cycle_len += cycle_comp;
         }
+
+        cycle_i++;
 
         SDL_GetWindowSize(sdl_gui_pt.sdl_window,&win_w,&win_h);
 
@@ -523,6 +582,14 @@ void SoilEngine::update_window_from_main_layout()
     if(!the_one_engine){return;}
 
     SDL_SetWindowSize(sdl_gui_pt.sdl_window,main_layout->view_size.w,main_layout->view_size.h);
+
+    //MARKER:MODAL
+    /*
+    if(modal_layout != NULL)
+    {
+        modal_layout->set_size(main_layout->view_size.w, main_layout->view_size.h);
+    }
+*/
 }
 //--------------------------------------------------- UPDATE WINDOW FROM MAIN LAYOUT
 void SoilEngine::update_main_layout_from_window()
@@ -598,7 +665,25 @@ void SoilEngine::reload_ui(int opt)
 
     }
 
+
+    
+    //MARKER: modal window
+    //if(active_ui > 0)
+    //deactivate main_layout
+
+    //if(modal_window.SIZE_CHANGED)
+        //modal_window.recursive_load_auto_sizes()
+        //modal_window.recursive_set_positions()
+    //if(SIZE CHANGED or SCROLL_MOVED)
+        //modal_window.recursive_set_elm_area()
+    //modal_window->recursive_print
+
+
     engine_control->ui_flag = 0;
+    if(opt > 0)
+    {
+        //printf("\n\n---------------------    RELOAD UI ---   END");
+    }
 
 }
 
@@ -642,6 +727,8 @@ int SoilEngine::init_window()
     //MARKER:set this as absolute max size for main_layout
     //and make sure the window size is the main_layout size
 
+    //MARKER:MODAL
+    //set_modal_layout(); 
     engine_control->set_main_layout((SoilUIElm*)main_layout);
     main_layout->recursive_set_engine_properties(&texture_pixmap,&arrows_pixmap,sdl_gui_pt.pixel_density,engine_control,&font,external_control);
 
@@ -652,6 +739,16 @@ int SoilEngine::init_window()
     SDL_SetWindowMinimumSize(sdl_gui_pt.sdl_window,main_layout->view_min_size.w,main_layout->view_min_size.h);
     SDL_SetWindowMaximumSize(sdl_gui_pt.sdl_window,main_layout->view_max_size.w,main_layout->view_max_size.h);
 
+    if(icon_loaded)
+    {
+        SDL_SetWindowIcon(sdl_gui_pt.sdl_window, icon_surface);
+    }
+    if(title_loaded)
+    {
+        const char * wt_c_str = window_title.c_str_alloc();
+        SDL_SetWindowTitle(sdl_gui_pt.sdl_window, wt_c_str);
+        delete[] wt_c_str;
+    }
     return 0;
 }
 //--------------------------------------------------- LOAD ARROWS PX
@@ -659,9 +756,23 @@ void SoilEngine::load_arrows_pixmap()
 {
     if(!the_one_engine){return;}
 
+    //MARKER:the way the resource dir and files are being set is
+    //kinda messy just because I needed to create a SoilString
+    //and SoilPixmap doesn't accept SoilString as arg for
+    //alloc_from_file...
+
+    SoilString tmp_resource_str;
+    tmp_resource_str = resource_dir_str;
+    tmp_resource_str.append("images/arrows_6.bmp");
+
+    const char * dir_pt = tmp_resource_str.c_str_alloc();
+
     SoilPixmap tmp;
-    tmp.alloc_from_file("images/arrows.bmp");
-    int arrows_w = sdl_gui_pt.pixel_density / 7;
+    tmp.alloc_from_file(dir_pt);
+
+    delete[] dir_pt;
+
+    int arrows_w = sdl_gui_pt.pixel_density / 8;
     arrows_pixmap.alloc(4*arrows_w,2*arrows_w);
 
     if(!tmp.loaded || !arrows_pixmap.loaded)

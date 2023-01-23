@@ -436,26 +436,46 @@ int validate_rel_cursor_range(int len, int* i, int* n)
     }
     return 0;
 }
-
-//---------------------------------------------- FILL REC ID CH
-void hex_to_char_arr_8(char char_arr[8])
+//---------------------------------------------- HEX TO VAL
+//returns false if d0,d1 don't form a valid hex number
+bool hex_to_val(char d0, char d1, char* v)
 {
-    int i = 0;
-    unsigned int fac = 0xF0000000;
-    unsigned int res;
-    int shift_i = 28;
-    char hex_digits[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-    int tmp = 0x1234abcd;
-    while(i < 8)
+    *v = 0;
+    bool res = false;
+    if(d0 > 47 && d0 < 58)
     {
-        res = tmp & fac;
-        res = res >> shift_i;
-
-        char_arr[i] = hex_digits[res%16];
-
-        fac = fac >> 4;
-        shift_i -= 4;
-        i++;
+        *v += (d0 - 48) * 16;
+        res = true;
     }
-    
+    if(d0 > 64 && d0 < 71)
+    {
+        *v += (d0 - 55) * 16;
+        res = true;
+    }
+    if(d0 > 96 && d0 < 103)
+    {
+        *v += (d0 - 87) * 16;
+        res = true;
+    }
+    if(!res){return false;}
+    res = false;
+
+    if(d1 > 47 && d1 < 58)
+    {
+        *v += (d1 - 48);
+        res = true;
+    }
+    if(d1 > 64 && d1 < 71)
+    {
+        *v += (d1 - 55);
+        res = true;
+    }
+    if(d1 > 96 && d1 < 103)
+    {
+        *v += (d1 - 87);
+        res = true;
+    }
+    if(!res){return false;}
+
+    return true;
 }

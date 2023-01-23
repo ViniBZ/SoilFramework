@@ -34,7 +34,7 @@ void SoilTextWidget::mouse_left_down_event_virt(int X, int Y, int in_view_x, int
             
             if(shift_pressed && cursor_active_before)
             {
-                soil_text.select_text(soil_text.CURSOR, new_cursor);
+                soil_text.select_text(soil_text.get_cursor_pos(), new_cursor);
                 mouse_selected = true;
             }else{
                 update_from_soil_text = false;
@@ -159,11 +159,11 @@ void SoilTextWidget::text_input_event_virt(SDL_Event E)
         {
             //soil_text.remove_selection();
             //new_cursor_pos = soil_text.SEL_S + input_len;
-            soil_string->replace(ch, soil_text.SEL_S, (soil_text.SEL_E - soil_text.SEL_S));
+            soil_string_pt->replace(ch, soil_text.SEL_S, (soil_text.SEL_E - soil_text.SEL_S));
 
         }else{
-            soil_string->insert_ch_in_range(ch, soil_text.CURSOR);
-           // new_cursor_pos = soil_text.CURSOR + input_len;
+            soil_string_pt->insert_ch_in_range(ch, soil_text.get_cursor_pos());
+           // new_cursor_pos = cursor + input_len;
         }
     
         update_from_soil_text = true;
@@ -199,9 +199,10 @@ void SoilTextWidget::keydown_event_virt(SDL_Event E)
     {
         shift_pressed = true;
     }
-
-    int cursor_before = soil_text.CURSOR;
-    int cursor_after = cursor_before;
+    
+    int cursor = soil_text.get_cursor_pos();
+    int cursor_before = cursor;
+    int cursor_after = cursor;
     int prev_sel_s = soil_text.SEL_S;
     int prev_sel_e = soil_text.SEL_E;
     
@@ -228,7 +229,7 @@ void SoilTextWidget::keydown_event_virt(SDL_Event E)
     {
         if(soil_text.text_selected)
         {
-            char* clipboard_text = soil_string->section_c_str_alloc(soil_text.SEL_S,(soil_text.SEL_E - soil_text.SEL_S));
+            char* clipboard_text = soil_string_pt->section_c_str_alloc(soil_text.SEL_S,(soil_text.SEL_E - soil_text.SEL_S));
             //char* clipboard_text = soil_text.get_selection_c_str_alloc();
             SDL_SetClipboardText(clipboard_text);
             if(clipboard_text != NULL){delete[] clipboard_text;}
@@ -240,6 +241,11 @@ void SoilTextWidget::keydown_event_virt(SDL_Event E)
         }
     }
 
+    if(!EDITABLE)
+    {
+        return;
+    }
+
     if(command == STW_PASTE)
     {
         char* clipboard_text = SDL_GetClipboardText();
@@ -248,7 +254,7 @@ void SoilTextWidget::keydown_event_virt(SDL_Event E)
         {
             if(clipboard_text != NULL)
             {
-                soil_string->replace(clipboard_text, soil_text.SEL_S, (soil_text.SEL_E - soil_text.SEL_S));
+                soil_string_pt->replace(clipboard_text, soil_text.SEL_S, (soil_text.SEL_E - soil_text.SEL_S));
 
                 SDL_free(clipboard_text);
             }
@@ -256,16 +262,11 @@ void SoilTextWidget::keydown_event_virt(SDL_Event E)
             if(clipboard_text != NULL)
             {
                 //update_from_soil_text = false;
-                soil_string->insert(clipboard_text, soil_text.CURSOR);
+                soil_string_pt->insert(clipboard_text, cursor);
 
                 SDL_free(clipboard_text);
             }
         }
-    }
-
-    if(!EDITABLE)
-    {
-        return;
     }
 
     if(command == STW_TAB)
@@ -283,18 +284,18 @@ void SoilTextWidget::keydown_event_virt(SDL_Event E)
                     int sp_n = 0;
                     if(soil_text.text_selected)
                     {
-                        sp_n = soil_string->replace_with_regular_tab(soil_text.SEL_S, (soil_text.SEL_E - soil_text.SEL_S), soil_text.TAB_W);
+                        sp_n = soil_string_pt->replace_with_regular_tab(soil_text.SEL_S, (soil_text.SEL_E - soil_text.SEL_S), soil_text.TAB_W);
 
                     }else{
-                        sp_n = soil_string->regular_tab_input(soil_text.CURSOR, soil_text.TAB_W);                        
+                        sp_n = soil_string_pt->regular_tab_input(cursor, soil_text.TAB_W);                        
                     }
                 }else{
                     bool res = false;
                     if(soil_text.text_selected)
                     {
-                        res = soil_string->replace_with_space(soil_text.SEL_S, (soil_text.SEL_E - soil_text.SEL_S), soil_text.TAB_W);
+                        res = soil_string_pt->replace_with_space(soil_text.SEL_S, (soil_text.SEL_E - soil_text.SEL_S), soil_text.TAB_W);
                     }else{
-                        res = soil_string->insert_space(soil_text.CURSOR, soil_text.TAB_W);
+                        res = soil_string_pt->insert_space(cursor, soil_text.TAB_W);
                     }
                     //update_from_soil_text = true;
                     //soil_text.set_cursor(str->last_rec.cursor_1_after);
@@ -320,17 +321,17 @@ void SoilTextWidget::keydown_event_virt(SDL_Event E)
             //update_from_soil_text = false;
             if(BR_KEEP_INDENT)
             {
-                int indent_i = soil_text.cursor_line_indent(soil_text.CURSOR);
-                int line_start = soil_text.cursor_line_start(soil_text.CURSOR);
+                int indent_i = soil_text.cursor_line_indent(cursor);
+                int line_start = soil_text.cursor_line_start(cursor);
                 int keep_indent_n = indent_i - line_start;
                 cursor_inc += keep_indent_n;
                 br_str.insert_space(1,keep_indent_n);
             }
             if(soil_text.is_selected())
             {
-                soil_string->replace(br_str,soil_text.SEL_S, (soil_text.SEL_E - soil_text.SEL_S));
+                soil_string_pt->replace(br_str,soil_text.SEL_S, (soil_text.SEL_E - soil_text.SEL_S));
             }else{
-                soil_string->insert(br_str,soil_text.CURSOR);
+                soil_string_pt->insert(br_str,cursor);
             }
         }else{
             //MARKER:send submit signal
@@ -352,7 +353,7 @@ void SoilTextWidget::keydown_event_virt(SDL_Event E)
             }
             if(res <= 0)
             {
-                res = soil_string->remove(soil_text.CURSOR,1);
+                res = soil_string_pt->remove(cursor,1);
             }
         }
     }
@@ -372,7 +373,7 @@ void SoilTextWidget::keydown_event_virt(SDL_Event E)
             }
             if(res <= 0)
             {
-                res = soil_string->remove(soil_text.CURSOR,-1);
+                res = soil_string_pt->remove(cursor,-1);
             }
         }
     }
@@ -380,7 +381,7 @@ void SoilTextWidget::keydown_event_virt(SDL_Event E)
     {
         int res;
         update_from_soil_text = false;
-        soil_text.select_word(soil_text.CURSOR, true);
+        soil_text.select_word(cursor, true);
         update_from_soil_text = true;
         res = soil_text.remove_selection();
     }
@@ -389,9 +390,9 @@ void SoilTextWidget::keydown_event_virt(SDL_Event E)
     {        
         int res;
         update_from_soil_text = false;
-        int s = soil_text.cursor_line_start(soil_text.CURSOR);
-        int e = soil_text.cursor_line_end(soil_text.CURSOR);
-        if(e < soil_string->get_length()){e++;}
+        int s = soil_text.cursor_line_start(cursor);
+        int e = soil_text.cursor_line_end(cursor);
+        if(e < soil_string_pt->get_length()){e++;}
         soil_text.select_text(s,e);
         update_from_soil_text = true;
         res = soil_text.remove_selection();
@@ -400,7 +401,7 @@ void SoilTextWidget::keydown_event_virt(SDL_Event E)
     if(command == STW_DUPLICATE_LINE)
     {
         int res;
-        res = soil_string->duplicate_line(soil_text.CURSOR);
+        res = soil_string_pt->duplicate_line(cursor);
     }
 
     if(command == STW_UNDO)

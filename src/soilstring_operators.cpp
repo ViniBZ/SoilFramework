@@ -374,7 +374,11 @@ bool SoilString::set_ch_at(int ind, char ch)
 // ----------------------------------------------- OPERATOR = 1
 int SoilString::operator= (const char* str)
 {
-
+    if(str == NULL)
+    {
+        *this = "";
+        return 0;
+    }
     int new_length = length;
     int new_byte_n = byte_n;
     utf8_str_len(str,&new_length,&new_byte_n);

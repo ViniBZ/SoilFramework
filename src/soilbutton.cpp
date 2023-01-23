@@ -4,6 +4,7 @@ SoilButton::SoilButton(): SoilWidget(BUTTON)
 {
     scrollable = false;
 
+    ENABLED = true;
     CHECKABLE = false;
     CHECKED = false;
     just_checked = false;
@@ -85,6 +86,11 @@ void SoilButton::update_from_content()
         engine_control->set_ui_flag(3);
     }
 }
+//--------------------------------------------------- SET ENABLED
+void SoilButton::set_enabled(bool e)
+{
+    ENABLED = e;
+}
 //--------------------------------------------------- SET CHECKABLE
 void SoilButton::set_checkable(bool c)
 {
@@ -122,8 +128,8 @@ void SoilButton::set_text(const char* str)
 //--------------------------------------------------- SET TEXT
 void SoilButton::set_text(const SoilString& str)
 {
-    //MARKER:commented this because soil_text.soil_string should be SoilText's private property
-    //soil_text.soil_string = str;
+    //MARKER:commented this because soil_text.soil_string_pt should be SoilText's private property
+    //soil_text.soil_string_pt = str;
     soil_text.set_text(str);
     text_size = soil_text.get_text_px_size(font_size);
 
@@ -240,7 +246,8 @@ void SoilButton::draw()
 //--------------------------------------------------- MOUSE LEFT DOWN
 void SoilButton::set_as_mouse_left_down_elm_virt(bool f)
 {
-    SoilUIElm* this_elm = (SoilUIElm*) this;
+    //SoilUIElm* this_elm = (SoilUIElm*) this;
+    if(!ENABLED){return;}
 
     bool prev_marked = MARKED;
     if(CHECKABLE)

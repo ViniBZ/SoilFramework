@@ -11,6 +11,7 @@ class SoilButton : public SoilWidget
 {
 public:
 
+    bool ENABLED;
     bool CHECKABLE;
     bool CHECKED;//can only be true if CHECKABLE is true
     //true after MOUSE_DOWN that set
@@ -33,6 +34,7 @@ public:
     
     virtual SIZE set_size_virt(int w, int h);
     void update_from_content();
+    void set_enabled(bool e);
     void set_checkable(bool c);
     void set_checked(bool c);
     void set_text(const char* str);

@@ -23,13 +23,13 @@ void SoilTextBlock::init()
     scrollable = false;
     set_auto_size(false,false);
     set_follow_text_w(true);
-    soil_text.MULTI_LINE = true;
+    soil_text.set_multi_line(true);
     set_as_clickable_item(false);
     set_default_command_map();
     set_code_edit_special_shortcuts(true);
 
 
-    soil_string = &soil_text.soil_string;
+    //soil_string_pt = &soil_text.soil_string;
     //MARKER: make REC dynamic and what else not...
 
     edit_extra_w_content=0;

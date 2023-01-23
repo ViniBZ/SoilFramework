@@ -5,7 +5,7 @@
 // ------------------------------------------------------ CONVERT MM TO PIXELS
 int mm_to_px(int dpi, int mm)
 {
-    double tmp = (double) dpi / 25;
+    double tmp = (double) dpi / 25.4;
     tmp *= (double) mm;
     int res = (int)tmp;
     return res;
@@ -63,7 +63,22 @@ void reset_rect(SOIL_RECT* rect)
     rect->w = 0;
     rect->h = 0;
 }
+// ------------------------------------------------------ SET RECT ABSOLUTE
+//it means w and h won't be negative
+void set_rect_abs(SOIL_RECT* rect)
+{
+    if(rect->w < 0)
+    {
+        rect->x += rect->w;
+        rect->w *= (-1);
+    }
+    if(rect->h < 0)
+    {
+        rect->y += rect->h;
+        rect->h *= (-1);
+    }
 
+}
 // ------------------------------------------------------ RESET BOUND
 void reset_bound(BOUND_RECT* bound)
 {
@@ -136,6 +151,58 @@ bool validate_rect_in_size(SOIL_RECT* rect, SIZE size)
     *rect = res_rect;
 
     return res;
+}
+// ------------------------------------------------------ ADJUST RECT TO SIZE
+bool adjust_rect_to_size(SIZE size, SOIL_RECT* rect)
+{
+    SOIL_RECT null_rect = {0,0,0,0};
+    int ex = rect->x + rect->w;
+    int ey = rect->y + rect->h;
+
+    if(rect->x < 0)
+    {
+        rect->x = 0;
+        rect->w = ex;
+    }else{
+        if(rect->x >= size.w)
+        {
+            *rect = null_rect;
+            return false;
+        }
+    }
+    if(rect->y < 0)
+    {
+        rect->y = 0;
+        rect->h = ey;
+    }else{
+        if(rect->y >= size.h)
+        {
+            *rect = null_rect;
+            return false;
+        }
+    }
+    if(ex > size.w)
+    {
+        rect->w -= (ex - size.w);
+    }else{
+        if(ex <= 0)
+        {
+            *rect = null_rect;
+            return false;
+        }
+    }
+    if(ey > size.h)
+    {
+        rect->h -= (ey - size.h);
+    }else{
+        if(ey <= 0)
+        {
+            *rect = null_rect;
+            return false;
+        }
+    }
+    return true;   
+
 }
 // ------------------------------------------------------ CUT RECT FROM RECT
 SOIL_RECT rect_intersection(SOIL_RECT rect_1, SOIL_RECT rect_2)
@@ -1952,6 +2019,174 @@ void paste_pixmap_to_pixmap(Uint32* orig_pixmap, SIZE orig_px_size,BOUND_RECT or
         DEST.y++;
     }
 }
+// ------------------------------------------------------ COPY PIXMAP TO PIXMAP IN CERTAIN POSITION
+void paste_pixmap_to_pixmap_in_pos(const Uint32* orig_pixmap, SIZE orig_px_size,SOIL_RECT orig_rect,Uint32* dest_pixmap, SIZE dest_px_size, SOIL_RECT dest_rect, int pos)
+{
+    if(orig_pixmap == NULL || dest_pixmap == NULL){return;}
+    //the orig_rect indicates the area to be copied
+    //the dest_rect indicates the area to be pasted to and its limits
+    //px_size values are the size to the entire pixmaps
+    adjust_rect_to_size(orig_px_size, &orig_rect);
+    adjust_rect_to_size(dest_px_size, &dest_rect);
+    
+    DRAW_POINTS ORIG;
+    DRAW_POINTS DEST;
+
+    POINT ORIG_INC;
+
+    int orig_pre_index;
+    int orig_index;
+    int dest_pre_index;
+    int dest_index;
+
+    //position changes the order the pixels will be taken from orig_pixmap,
+    //it will always paste to the top left of the dest area regardless of the position
+
+
+    DEST.start_x = dest_rect.x;
+    DEST.start_y = dest_rect.y;
+    DEST.end_x = dest_rect.x + dest_rect.w;
+    DEST.end_y = dest_rect.y + dest_rect.h;
+    DEST.x = DEST.start_x;
+    DEST.y = DEST.start_y;
+
+    bool y_loop_outside = true;
+
+
+    // ------------------------------ NORMAL / same pos as in orig
+    if(pos == 0)
+    {
+        ORIG.start_x = orig_rect.x;
+        ORIG.start_y = orig_rect.y;
+        ORIG.end_x = orig_rect.x + orig_rect.w;
+        ORIG.end_y = orig_rect.y + orig_rect.h;
+        ORIG.x = ORIG.start_x;
+        ORIG.y = ORIG.start_y;
+
+        ORIG_INC.x = 1;
+        ORIG_INC.y = 1;
+    }
+    // ------------------------------ 90 degrees CLOCKWISE
+    if(pos == 1)
+    {
+        //invert loop
+        y_loop_outside = false;
+        ORIG.start_x = orig_rect.x;
+        ORIG.start_y = (orig_rect.y + orig_rect.h) - 1;//minus 1 to adjust limit
+        ORIG.end_x = orig_rect.x + orig_rect.w;
+        ORIG.end_y = orig_rect.y - 1;
+        ORIG.x = ORIG.start_x;
+        ORIG.y = ORIG.start_y;
+
+        ORIG_INC.x = 1;
+        ORIG_INC.y = (-1);
+    }
+    // ------------------------------ 180 degrees
+    if(pos == 2)
+    {
+        ORIG.start_x = (orig_rect.x + orig_rect.w) - 1;
+        ORIG.start_y = (orig_rect.y + orig_rect.h) - 1;
+        ORIG.end_x = orig_rect.x - 1;
+        ORIG.end_y = orig_rect.y - 1;
+        ORIG.x = ORIG.start_x;
+        ORIG.y = ORIG.start_y;
+
+        ORIG_INC.x = (-1);
+        ORIG_INC.y = (-1);
+    }
+    // ------------------------------ 90 degrees COUNTER CLOCKWISE
+    if(pos == 3)
+    {
+        //invert loop
+        y_loop_outside = false;
+        ORIG.start_x = (orig_rect.x + orig_rect.w) - 1;
+        ORIG.start_y = orig_rect.y;
+        ORIG.end_x = orig_rect.x - 1;
+        ORIG.end_y = orig_rect.y + orig_rect.h;
+        ORIG.x = ORIG.start_x;
+        ORIG.y = ORIG.start_y;
+
+        ORIG_INC.x = (-1);
+        ORIG_INC.y = 1;
+    }
+    // ------------------------------ invert horizontally
+    if(pos == 4)
+    {
+        ORIG.start_x = (orig_rect.x + orig_rect.w) - 1;
+        ORIG.start_y = orig_rect.y;
+        ORIG.end_x = orig_rect.x - 1;
+        ORIG.end_y = orig_rect.y + orig_rect.h;
+        ORIG.x = ORIG.start_x;
+        ORIG.y = ORIG.start_y;
+
+        ORIG_INC.x = (-1);
+        ORIG_INC.y = 1;
+    }
+    // ------------------------------ invert vertically
+    if(pos == 5)
+    {
+        ORIG.start_x = orig_rect.x;
+        ORIG.start_y = (orig_rect.y + orig_rect.h) - 1;
+        ORIG.end_x = orig_rect.x + orig_rect.w;
+        ORIG.end_y = orig_rect.y - 1;
+        ORIG.x = ORIG.start_x;
+        ORIG.y = ORIG.start_y;
+
+        ORIG_INC.x = 1;
+        ORIG_INC.y = (-1);
+    }
+
+    int orig_err = 0;
+    int dest_err = 0;
+
+    if(y_loop_outside)
+    {
+        while(ORIG.y != ORIG.end_y && DEST.y < DEST.end_y)
+        {
+            orig_pre_index = ORIG.y * orig_px_size.w;
+            dest_pre_index = DEST.y * dest_px_size.w;
+            while(ORIG.x != ORIG.end_x && DEST.x < DEST.end_x)
+            {
+                orig_index = orig_pre_index + ORIG.x;
+                dest_index = dest_pre_index + DEST.x;
+
+                dest_pixmap[dest_index] = orig_pixmap[orig_index];
+                
+                ORIG.x += ORIG_INC.x;
+                DEST.x += 1;
+            }
+            ORIG.x = ORIG.start_x;
+            ORIG.y += ORIG_INC.y;
+
+            DEST.x = DEST.start_x;
+            DEST.y += 1;
+        }
+
+    }else{
+        while(ORIG.x != ORIG.end_x && DEST.y < DEST.end_y)
+        {
+            dest_pre_index = DEST.y * dest_px_size.w;
+            while(ORIG.y != ORIG.end_y && DEST.x < DEST.end_x)
+            {
+                orig_index = (ORIG.y * orig_px_size.w) + ORIG.x;
+                dest_index = dest_pre_index + DEST.x;
+
+                dest_pixmap[dest_index] = orig_pixmap[orig_index];
+                ORIG.y += ORIG_INC.y;
+                DEST.x += 1;
+            }
+            ORIG.x += ORIG_INC.x;
+            ORIG.y = ORIG.start_y;
+
+            DEST.x = DEST.start_x;
+            DEST.y += 1;
+        }
+    }
+    printf("\norig err: %d", orig_err);
+    printf("\ndest err: %d", dest_err);
+    printf("\n.");
+
+}
 // ------------------------------------------------------ COPY PIXMAP TO SDL SURFACE
 void paste_pixmap_to_sdl_surface(Uint32* orig_pixmap, SIZE orig_px_size,SOIL_RECT orig_rect,SDL_Surface* sdl_surface, SIZE surface_size, SOIL_RECT dest_rect)
 {
@@ -3619,6 +3854,19 @@ double polygon_area(D_POINT* CORNERS,int corn_n)
     return ret;
 
 }
+
+// -------------------------------------------------------------- DRAW AA LINE
+void draw_aa_line(unsigned char* pixmap,SIZE px_size,POINT START,POINT END,int bold,unsigned char color)
+{
+    
+}
+// -------------------------------------------------------------- DRAW AA LINE
+void draw_aa_line(Uint32* pixmap,SIZE px_size,POINT START,POINT END,int bold,Uint32 color)
+{	
+    
+
+}
+
 // -------------------------------------------------------------- DRAW LINE
 void draw_straight_line(Uint32* pixmap,SIZE px_size,POINT START,POINT END,int bold,Uint32 color)
 {
@@ -4363,7 +4611,89 @@ void copy_rect_to_buffer(Uint32* pixmap,SIZE px_size,CALC_PIX_COLOR* buffer,SOIL
         px_x=rect.x;
     }
 }
+// -------------------------------------------------------------- MAKE CORNER SAMPLE FROM CORNER IMAGE
+void make_corner_sample_from_border_img(Uint32* border_pixmap,SIZE border_px_size, Uint32* corner_pixmap,SIZE corner_px_size)
+{
+    //if((2 * corner_px_size.h) > border_px_size.h || (2 * (corner_px_size.w - 1)) > border_px_size.w){return;}
+    int end_x = (border_px_size.w / 3) + 1;
+    int end_y = border_px_size.h / 3;
+    if(corner_px_size.w < end_x || border_px_size.h < end_y){return;}
+    int x = 0;
+    int y = 0;
 
+    int border_index;
+    int corner_index;
+
+    while(y < end_y)
+    {
+        while(x < end_x)
+        {
+            border_index = (y*border_px_size.w) + x;
+            corner_index = (y*corner_px_size.w) + x;
+            corner_pixmap[corner_index] = border_pixmap[border_index];
+            x++;
+        }
+        x = 0;
+        y++;
+    }
+}
+// -------------------------------------------------------------- LOAD BORDER FROM CORNER SAMPLE
+void load_border_from_corner_sample(Uint32* corner_pixmap,SIZE corner_px_size,Uint32* border_pixmap,SIZE border_px_size)
+{
+    //MARKER: have the validation somewhere else, or return a value from this function
+    if((2 * corner_px_size.h) > border_px_size.h || (2 * (corner_px_size.w - 1)) > border_px_size.w){return;}
+
+
+    DRAW_POINTS CP;//corner points
+    DRAW_POINTS BP;//border points
+
+    POINT CP_inc;
+    POINT BP_inc;
+    SOIL_RECT rect;
+    int corner_pre_index = 0;
+    int corner_index = 0;
+    int border_pre_index = 0;
+    int border_index = 0;
+
+
+    //////////////////////////////// TOP LEFT
+    CP.start_x = 0;
+    CP.start_y = 0;
+    CP.end_x = corner_px_size.w - 1;
+    CP.end_y = corner_px_size.h;
+    CP.x = CP.start_x;
+    CP.y = CP.start_y;
+
+    CP_inc.x = 1;
+    CP_inc.y = 1;
+
+    BP = CP;
+    BP_inc = CP_inc;
+
+    while(CP.y < CP.end_y)
+    {
+        //corner_pre_index = y*corner_px_size.w;
+        //border_pre_index = y*border_px_size.w;
+        //it's corner_px_size.h so I don't write corner_px_size.w-1;
+        while(CP.x < CP.end_x)
+        {
+            //corner_index = corner_pre_index + x;
+            //border_index = border_pre_index + x;
+            border_pixmap[border_index] = alpha_blend_pixel(border_pixmap[border_index], corner_pixmap[corner_index]);
+            CP.x += CP_inc.x;
+        }
+        CP.x = CP.start_x;
+        CP.y += CP_inc.y;
+
+        
+    }
+
+    
+
+
+
+
+}
 // -------------------------------------------------------------- DRAW SOLID RECT
 void draw_solid_rect(unsigned char* pixmap,SIZE px_size,SOIL_RECT rect,unsigned char color)
 {

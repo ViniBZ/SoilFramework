@@ -49,8 +49,10 @@ void SoilFont::alloc_font()
             //MAIN_FONT_PX_W = FONT_CHAR_W * FONT_LEN
             //MAIN_FONT_PX_H = FONT_CHAR_H * 2
 
+            //MARKER:FIX this. create a way to set the resource sub dir
+            //from SoilEngine
             pixmap[s].set_to_mono_mode();
-            pixmap[s].alloc_from_file("font_images/soil_font.bmp");
+            pixmap[s].alloc_from_file("./font_images/soil_font.bmp");
 
             int pxw = pixmap[s].size.w;
             int pxh = pixmap[s].size.h;

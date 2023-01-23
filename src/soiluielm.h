@@ -11,8 +11,8 @@
 
 
 //scrollbar motion values
-#define SCR_MOV 2
-#define SCR_BIG_MOV 4
+#define SCR_MOV 4
+#define SCR_BIG_MOV 20
 #define SCR_INTERVAL 10
 #define SCR_MIN_BAR_LEN 20
 
@@ -25,8 +25,7 @@ public:
     //MARKER: delete "friend class UserControl;"
     friend class UserControl;
     friend class SoilColorButton;
-    //friend class SoilDropMenu;
-    //friend class SoilListWidget;
+
 
 
     std::string log_nest;//test var
@@ -94,7 +93,7 @@ protected:
     SoilUIElm* next;
     SoilUIElm* prev;
     //////////////////////////// SOIL TIMED FLAGS
-    ELM_FLAG scroll_move_flag;
+    OBJ_FLAG scroll_move_flag;
     //////////////////////////// ENGINE / EXTERNAL PROPERTIES
     bool added;
     bool dest_pixmap_is_set;
@@ -321,7 +320,7 @@ protected:
     //////////////////////////////////
 
     virtual void process_flag(int value);
-    void init_flag(ELM_FLAG* flag);
+    void init_flag(OBJ_FLAG* flag);
     void load_mouse_coord_to_signal_arg(SOIL_SIGNAL_STRUCT * sig,Uint8 button,int X,int Y,int in_view_x,int in_view_y);
 
     /////////////////////////////////////// SCROLLBAR METHODS

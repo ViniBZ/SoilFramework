@@ -1,9 +1,9 @@
-//
+//abcdefh
 //  global_definitions.h
 //  Soil Framework
 //
 //  Created by Vinicius Baez on 16/11/2020.
-
+//MODIFIED 2023_01_23
 
 #ifndef global_definitions_h
 #define global_definitions_h
@@ -37,13 +37,13 @@ typedef enum LAYOUT_NEST_PROPERTY{ALL_PROPERTIES=0xFF,CONTROL=0x01,FONT=0x02,DES
 
 //typedef enum ENGINE_FLAG_TYPE{NO_FLAG=0x00,UI_CHANGED=0x01,UI_SIZE_CHANGED=0x02}ENGINE_FLAG_TYPE;
 
-#define SOIL_SIGNAL_N 23
+#define SOIL_SIGNAL_N 25
 typedef enum SOIL_SIGNAL{SIZE_CHANGED,FOCUS_CHANGED,DRAWN,SCROLL_H_SET,
                         SCROLL_V_SET,CONTENT_VIEW_MOTION,MOUSE_DOWN,
                         MOUSE_UP,MOUSE_WHEEL,MOUSE_MOTION,MOUSE_ENTER,
                         MOUSE_LEAVE,MOUSE_CLICK,KEY_DOWN,KEY_UP,TEXT_INPUT,
-                        CHECK,TEXT_CHANGED,FONT_SIZE_CHANGED,VALUE_CHANGED,RANGE_CHANGED,
-                        MODWIN_RESPONSE,SUBMIT
+                        CHECK,TEXT_CHANGED,TEXT_SEL_CHANGED,FONT_SIZE_CHANGED,VALUE_CHANGED,RANGE_CHANGED,
+                        MODWIN_RESPONSE,SUBMIT,CUSTOM
                         }SOIL_SIGNAL;
 
 
@@ -288,17 +288,17 @@ class SoilPixmap;
 
 //this flags are added to the SoilEngineControl calling process_flag in
 //the SoilUIElm, it s for internal use only
-class SoilUIElm;
-typedef struct ELM_FLAG{
+class SoilObject;
+typedef struct OBJ_FLAG{
     bool in_control;//in control list
-    SoilUIElm* elm;
+    SoilObject* obj;
     int value;
     int interval;
-    ELM_FLAG* prev;
-    ELM_FLAG* next;
+    OBJ_FLAG* prev;
+    OBJ_FLAG* next;
 
 
-}ELM_FLAG;
+}OBJ_FLAG;
 
 //I have decided to have 2 kinds of SIGNALS, the ones connected directly
 //to SDL_Event events and the SOIL ones
@@ -317,6 +317,7 @@ typedef struct ELM_FLAG{
 typedef struct SDL_EVENT_SIGNAL{
     bool active;
     int response;
+    int delay;
 }SDL_EVENT_SIGNAL;
 
 //SOIL SIGNAL ARGUMENTS
@@ -328,6 +329,12 @@ typedef struct SDL_EVENT_SIGNAL{
 typedef struct SIZE_CHANGED_ARG{
     SIZE size;
 }SIZE_CHANGED_ARG;
+
+typedef struct TEXT_SEL_CHANGED_ARG{
+    bool selected;
+    int sel_s;
+    int sel_e;
+}TEXT_SEL_CHANGED_ARG;
 
 typedef struct FOCUS_CHANGED_ARG{
     bool focused;
@@ -371,6 +378,7 @@ typedef struct RANGE_CHANGED_ARG{
 typedef union SOIL_SIGNAL_ARGS{
     int gen_arg;
     SIZE_CHANGED_ARG size_changed_arg;
+    TEXT_SEL_CHANGED_ARG text_sel_changed_arg;
     FOCUS_CHANGED_ARG focus_changed_arg;
     CONTENT_VIEW_ARG content_view_arg;
     SCROLL_ARG scroll_arg;
@@ -388,7 +396,7 @@ typedef union SOIL_SIGNAL_ARGS{
 //this is for the signals the elements or window might send
 //this signals are used to call the callback function in SoilControl
 //this is for the user(developer) to use
-//don't mistake this for the ELM_FLAG above
+//don't mistake this for the OBJ_FLAG above
 typedef struct SOIL_SIGNAL_STRUCT{
     SOIL_SIGNAL signal;
     SoilUIElm* elm;

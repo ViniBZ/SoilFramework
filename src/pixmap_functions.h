@@ -24,10 +24,14 @@ void printf_soil_bound(BOUND_RECT bound, int id=(-1));
 void printf_size(SIZE size, int id=-1);
 // ------------------------------------------------------ RESET RECT
 void reset_rect(SOIL_RECT* rect);
+// ------------------------------------------------------ SET RECT ABSOLUTE
+void set_rect_abs(SOIL_RECT* rect);
 // ------------------------------------------------------ RESET BOUND
 void reset_bound(BOUND_RECT* bound);
 // ------------------------------------------------------ VALIDATE RECT WITH SIZE
 bool validate_rect_in_size(SOIL_RECT* rect, SIZE size);
+// ------------------------------------------------------ ADJUST RECT TO SIZE
+bool adjust_rect_to_size(SIZE size, SOIL_RECT* rect);
 // ------------------------------------------------------ RECT INTERSECTION
 SOIL_RECT rect_intersection(SOIL_RECT rect_1, SOIL_RECT rect_2);
 // ------------------------------------------------------ RECT INTERSECTION
@@ -145,6 +149,8 @@ void paste_pixmap_to_pixmap(const Uint32* orig_pixmap, SIZE orig_px_size,SOIL_RE
 void paste_pixmap_to_pixmap(PIXDATA* orig_pixmap, SIZE orig_px_size,SOIL_RECT orig_rect,Uint32* dest_pixmap, SIZE dest_px_size, SOIL_RECT dest_rect);
 // ------------------------------------------------------ COPY PIXMAP TO PIXMAP
 void paste_pixmap_to_pixmap(PIXDATA_FLAG* orig_pixmap, SIZE orig_px_size,SOIL_RECT orig_rect,Uint32* dest_pixmap, SIZE dest_px_size, SOIL_RECT dest_rect);
+// ------------------------------------------------------ COPY PIXMAP TO PIXMAP IN CERTAIN POSITION
+void paste_pixmap_to_pixmap_in_pos(const Uint32* orig_pixmap, SIZE orig_px_size,SOIL_RECT orig_rect,Uint32* dest_pixmap, SIZE dest_px_size, SOIL_RECT dest_rect, int pos);
 // ------------------------------------------------------ COPY PIXMAP TO PIXMAP
 void paste_pixmap_to_sdl_surface(Uint32* orig_pixmap, SIZE orig_px_size,SOIL_RECT orig_rect,SDL_Surface* sdl_surface, SIZE surface_size, SOIL_RECT dest_rect);
 
@@ -269,6 +275,11 @@ bool lines_cross(POINT A1, POINT A2, POINT B1, POINT B2);
 // -------------------------------------------------------------- POLYGON AREA
 double polygon_area(D_POINT* CORNERS,int corn_n);
 
+// -------------------------------------------------------------- DRAW AA LINE
+void draw_aa_line(unsigned char* pixmap,SIZE px_size,POINT START,POINT END,int bold,unsigned char color);
+// -------------------------------------------------------------- DRAW AA LINE
+void draw_aa_line(Uint32* pixmap,SIZE px_size,POINT START,POINT END,int bold,Uint32 color);
+
 // -------------------------------------------------------------- DRAW LINE
 void draw_straight_line(Uint32* pixmap,SIZE px_size,POINT START,POINT END,int bold,Uint32 color);
 // -------------------------------------------------------------- DRAW HORIZONTAL LINE
@@ -301,6 +312,13 @@ void copy_rect_to_buffer(Uint32* pixmap,SIZE px_size,PIXDATA* buffer,SOIL_RECT r
 //auxiliary for rotation
 //the buffer must already be allocated
 void copy_rect_to_buffer(Uint32* pixmap,SIZE px_size,CALC_PIX_COLOR* buffer,SOIL_RECT rect,double fac, bool delete_area);
+
+// -------------------------------------------------------------- MAKE CORNER SAMPLE FROM CORNER IMAGE
+void make_corner_sample_from_border_img(Uint32* border_pixmap,SIZE border_px_size,Uint32* corner_pixmap,SIZE corner_px_size);
+// -------------------------------------------------------------- LOAD BORDER FROM CORNER SAMPLE
+void load_border_from_corner_sample(Uint32* corner_pixmap,SIZE corner_px_size,Uint32* border_pixmap,SIZE border_px_size);
+
+
 // -------------------------------------------------------------- DRAW SOLID RECT
 void draw_solid_rect(unsigned char* pixmap,SIZE px_size,SOIL_RECT rect,unsigned char color);
 // -------------------------------------------------------------- DRAW SOLID RECT
