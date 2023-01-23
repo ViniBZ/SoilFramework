@@ -2,6 +2,9 @@
 
 SoilText::SoilText()
 {    
+
+    draw_i = 0;
+
     PWD_MODE = false;
     MULTI_LINE = true;
     MAX_LINE_W = 0;
@@ -11,6 +14,8 @@ SoilText::SoilText()
 
     CURSOR = 0;
     prev_drawn_CURSOR = (-1);
+
+    set_str_text_fields_before();
 
     cursor_changed = false;
     text_changed = false;
@@ -41,6 +46,11 @@ SoilText::SoilText()
 
     soil_string.set_soilobject_receiver(0, (SoilObject*)this);
 
+}
+
+SoilText::~SoilText()
+{    
+    
 }
 //---------------------------------------------- SET PWD MODE
 void SoilText::set_pwd_mode(bool m)
@@ -112,6 +122,23 @@ void SoilText::alloc_ch_span(int n)
     }
     //MARKER: if there is ever a way to validate memory alloc...validate if ch_span was correctly alloc'ed
 
+}
+//---------------------------------------------- SET STRING TEXT FIELDS
+void SoilText::set_str_text_fields_before()
+{
+    //for before the action
+    int cursor_2 = CURSOR;
+    if(text_selected)
+    {
+        if(cursor_at_sel_s)
+        {
+            cursor_2 = SEL_E;
+        }else{
+            cursor_2 = SEL_S;
+        }
+    }
+
+    soil_string.set_last_rec_text_fields_before(text_selected, CURSOR, cursor_2);
 }
 //---------------------------------------------- PROCESS TEXT
 void SoilText::process_text()
@@ -410,22 +437,6 @@ int SoilText::get_length()
 {
     return soil_string.get_length();
 }
-//---------------------------------------------- SET STRING TEXT FIELDS
-void SoilText::set_str_text_fields_before()
-{
-    int cursor_2 = CURSOR;
-    if(text_selected)
-    {
-        if(cursor_at_sel_s)
-        {
-            cursor_2 = SEL_E;
-        }else{
-            cursor_2 = SEL_S;
-        }
-    }
-
-    soil_string.set_last_rec_text_fields_before(text_selected, CURSOR, cursor_2);
-}
 //---------------------------------------------- PRINT TEXT LOG
 void SoilText::print_text_log()
 {
@@ -524,7 +535,7 @@ void SoilText::internal_select_text(int sel_a, int sel_b)
 
         cursor_at_sel_s = true;
     }
-    if(SEL_S != sel_a || SEL_E != sel_b){text_changed = true;}
+    if(SEL_S != sel_a || SEL_E != sel_b){text_sel_changed = true;}
     if(sel_a != sel_b)
     {
         text_selected = true;
@@ -545,6 +556,16 @@ SOIL_RECT SoilText::get_full_rect(SIZE char_size)
     full_rect.h = text_ch_size.h * char_size.h;
 
     return full_rect;
+}
+//---------------------------------------------- GET SOIL STRING PT
+SoilString* SoilText::get_soil_string_pt()
+{
+    return &soil_string;
+}
+//---------------------------------------------- IS MULTILINE
+bool SoilText::is_multi_line()
+{
+    return MULTI_LINE;
 }
 //---------------------------------------------- TEXT COORD FROM MOUSE COORD
 //it doesn't take in consideration if there is char at coord(x,y) or not
@@ -714,6 +735,11 @@ SOIL_RECT SoilText::soil_rect_from_cursor_pos(int char_i, SIZE char_size)
     rect.h = char_size.h;
     
     return rect;
+}
+//---------------------------------------------- GET CURSOR POS
+int SoilText::get_cursor_pos()
+{
+    return CURSOR;
 }
 //---------------------------------------------- CURSOR LINE INDENT
 int SoilText::cursor_line_indent(int c)

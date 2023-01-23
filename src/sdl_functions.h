@@ -13,6 +13,7 @@ typedef struct SDL_GUI_POINTER_PACK
     SDL_Window* sdl_window;
     SDL_Renderer* sdl_renderer;
     SDL_Texture* sdl_texture;
+    SDL_Surface* icon_sdl_surface;
     int pixel_density;
 
     SIZE sdl_texture_size;
@@ -38,5 +39,4 @@ SDL_GUI_PT sdl_init(int w,int h);
 void sdl_reset_gui_pt(SDL_GUI_PT* sdl_gui_pt);
 //-------------------------------------------------------------- GET SDL RECT
 SDL_Rect make_sdl_rect(int x, int y, int w, int h);
-
 #endif // sdl_functions_h 

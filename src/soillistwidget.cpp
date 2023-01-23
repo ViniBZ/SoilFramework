@@ -167,7 +167,7 @@ SoilString SoilListWidget::pop()
         }else{
             prev_item->next = cur_item->next;
         }
-        str = *cur_item->label.soil_string;
+        str = *cur_item->label.soil_string_pt;
 
         remove_elm(&cur_item->label);
         delete cur_item;
@@ -190,7 +190,7 @@ SoilString SoilListWidget::at(int ind)
         i++;
     }
     if(item == NULL){return str;}
-    str = *item->label.soil_string;
+    str = *item->label.soil_string_pt;
     return str;
 }
 //--------------------------------------------- SOILOBJECT CALLBACK
@@ -223,7 +223,7 @@ void SoilListWidget::printf_list()
     STR_LIST_ITEM* item = list;
     while(item != NULL)
     {
-        item->label.soil_string->printf_str(1,0);
+        item->label.soil_string_pt->printf_str(1,0);
         item = item->next;
         count++;
     }

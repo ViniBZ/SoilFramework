@@ -364,7 +364,7 @@ void SoilUIElm::scroll_w_mouse_left_down_event(int in_view_x, int in_view_y, SDL
                 if(engine_control_is_set && !scroll_move_flag.in_control)
                 {
                     scroll_move_flag.value = (i+1);//flag value
-                    engine_control->push_EF(&scroll_move_flag);
+                    engine_control->push_OF(&scroll_move_flag);
                 }
             }
             break;
@@ -408,7 +408,7 @@ void SoilUIElm::scroll_h_mouse_left_down_event(int in_view_x, int in_view_y, SDL
                 if(engine_control_is_set && !scroll_move_flag.in_control)
                 {
                     scroll_move_flag.value = (i+6);//flag value
-                    engine_control->push_EF(&scroll_move_flag);
+                    engine_control->push_OF(&scroll_move_flag);
                 }
             }
             break;
@@ -435,9 +435,14 @@ void SoilUIElm::scroll_h_wheel(int dir)
 {
 
     POINT motion;
-
-    dir *= (-1) * SCR_BIG_MOV;
-
+    //MARKER:maybe find a better way to increase the motion 
+    ///for bigger contents
+    //dir *= (-1) * (SCR_BIG_MOV + (content_size.h / content_view_rect.h));
+    //dir *= (-1) * SCR_BIG_MOV;//original
+    int rolling_amount = content_view_rect.h / 7;
+    if(rolling_amount < SCR_BIG_MOV){rolling_amount = SCR_BIG_MOV;}
+    dir *= (-1) * rolling_amount;
+    
     SoilUIElm* elm = (SoilUIElm*) this;
     while(elm != NULL)
     {

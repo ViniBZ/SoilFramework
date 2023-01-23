@@ -5,7 +5,8 @@ SoilProgressBar::SoilProgressBar() : SoilWidget(PROGRESSBAR)
     value = 0;
     decimal_resolution = 0;
 
-    value_text.soil_string = value;
+    value_str_pt = value_text.get_soil_string_pt();
+    *value_str_pt = value;
 
     set_size(150, 25);
 }
@@ -36,8 +37,8 @@ void SoilProgressBar::set_value(int v)
     if(v < 0){v = 0;}
     if(v > 100){v = 100;}
     value = v;
-    value_text.soil_string = value;
-    value_text.soil_string.append('%');
+    *value_str_pt = value;
+    value_str_pt->append('%');
     draw();
 
     

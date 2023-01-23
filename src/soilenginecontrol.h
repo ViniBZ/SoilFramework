@@ -2,21 +2,21 @@
 #define SOILENGINECONTROL_H
 #include "soilobject.h"
 
-//the idea is to use this to insert pointers to the ELM_FLAG within the elements
+//the idea is to use this to insert pointers to the OBJ_FLAG within the elements
 //SoilEngine would go through this dynamic list getting the flags and porcesisng them
 //this class doesn't have any reference to what SoilUIElm is so engine will get
 //to the elm by the id and an id indexed element array
 class SoilEngineControl : public SoilObject
 {
 public:
-    //////////////// TIMED FLAGS (ELM_FLAG)
+    //////////////// TIMED FLAGS (OBJ_FLAG)
     SIZE window_size;
 
-    ELM_FLAG* first_EF;
+    OBJ_FLAG* first_OF;
     
-    ELM_FLAG* last_EF;
-    ELM_FLAG* previous_EF;
-    ELM_FLAG* current_EF;
+    OBJ_FLAG* last_OF;
+    OBJ_FLAG* previous_OF;
+    OBJ_FLAG* current_OF;
     int EF_n;
 
     //////////////// SOIL SIGNALS
@@ -60,10 +60,10 @@ public:
     SoilEngineControl();
     void set_main_layout(SoilUIElm* m);
     //////////////// TIMED FLAGS METHODS
-    void push_EF(ELM_FLAG* f);
-    ELM_FLAG* next_EF();
-    void pop_EF();//pop last seen flag
-    void reset_EF();
+    void push_OF(OBJ_FLAG* f);
+    OBJ_FLAG* next_OF();
+    void pop_OF();//pop last seen flag
+    void reset_OF();
 
     //////////////// SOIL SIGNALS METHODS
     void push_SS(SOIL_SIGNAL_STRUCT* s);

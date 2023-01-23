@@ -79,7 +79,7 @@ bool validate_rel_cursor(int len, int* i);
 //return 0 if no value was invalid, 1 if the smaller was invalid, 2 if the bigger was invalid
 //and 3 if both were invalid
 int validate_rel_cursor_range(int len, int* i, int* n);
-void hex_to_char_arr_8(char char_arr[8]);
+bool hex_to_val(char d0, char d1, char *v);
 
 #endif // STRING_FUNCTIONS
 

@@ -15,12 +15,15 @@
 
 class SoilText : public SoilObject
 {
-
+friend class SoilTextWidget;
 private:
     //x,y,w,br for every char in soil_string
 
+    int draw_i;
+
     CHAR_SPAN* ch_span;
     int ch_span_alloc_len;
+
     SoilMemBound ch_span_mem_bound;
     bool signal_change;
     bool update_from_soil_string;
@@ -29,20 +32,12 @@ private:
     int line_index_alloc_len;
     SoilMemBound line_index_mem_bound;
 
-    void alloc_line_index(int n);//
-    void alloc_ch_span(int n);//
-    void process_text();//
-    void process_single_line_text();//
-    void process_multi_line_text();//
-    void print_text_log();//
-    void internal_set_cursor(int c);
-    void internal_select_text(int sel_a, int sel_b);
-    int this_changed();
+    SoilString soil_string;//
+    int CURSOR;
 
-public:
-    int get_length();
-    void set_str_text_fields_before();
-    SoilString soil_string;
+    bool cursor_changed;
+    bool text_changed;
+    bool text_sel_changed;
 
     bool PWD_MODE;
 
@@ -53,11 +48,7 @@ public:
 
     int TAB_W;
 
-    int CURSOR;
     int prev_drawn_CURSOR;
-
-    bool cursor_changed;
-    bool text_changed;
 
     bool MULTI_LINE;
     //if AUTOBREAK is on it will be the width of the text view
@@ -74,7 +65,22 @@ public:
     //text w/h in char_size, not pixels, nor char number
     SIZE text_ch_size;
 
+    void alloc_line_index(int n);//
+    void alloc_ch_span(int n);//
+    void set_str_text_fields_before();
+    void process_text();//
+    void process_single_line_text();//
+    void process_multi_line_text();//
+    void print_text_log();//
+    void internal_set_cursor(int c);
+    void internal_select_text(int sel_a, int sel_b);
+    int this_changed();
+
+public:
+    int get_length();
+
     SoilText();
+    ~SoilText();
     void set_pwd_mode(bool m);
     void set_multi_line(bool m);
     void set_tab_width(int w);
@@ -83,6 +89,8 @@ public:
 
     //correct cursor position and selection if soil_string is changed directly
     SOIL_RECT get_full_rect(SIZE char_size);
+    SoilString* get_soil_string_pt();
+    bool is_multi_line();
     //mouse coord is in pixels, that's why it needs to provide char size
     //text coord is given in character amounts
     POINT text_coord_from_mouse(int x, int y, SIZE char_size);
@@ -93,6 +101,8 @@ public:
     bool coord_from_cursor_pos(int char_i, POINT* coord);
     SOIL_RECT soil_rect_from_cursor_pos(int char_i, SIZE char_size);
 
+
+    int get_cursor_pos();
     int cursor_line_indent(int c);
     int cursor_line_start(int c);
     int cursor_line_end(int c);

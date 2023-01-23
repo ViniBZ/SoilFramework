@@ -11,6 +11,7 @@ public:
     int decimal_resolution;
     int value;
     SoilText value_text;
+    SoilString* value_str_pt;
 
     SoilProgressBar();
     virtual void validate_for_execution();

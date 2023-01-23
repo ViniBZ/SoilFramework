@@ -82,7 +82,7 @@ public:
     //BASICS
     int action_n;
 
-    SoilString* soil_string;
+    SoilString* soil_string_pt;
     SoilText soil_text;
     SIZE char_size;
     int font_size;
@@ -173,7 +173,7 @@ public:
     bool mouse_selected;
     bool selected;
 
-    ELM_FLAG cursor_flag;
+    OBJ_FLAG cursor_flag;
     bool cursor_active;
     bool cursor_vis;
 
@@ -213,12 +213,15 @@ public:
     void set_vertical_alignment(ALIGNMENT a);
     void set_text_field_properties(Uint32 properties);
     int get_text_length();
+    bool get_selection(int* sel_s, int* sel_e);
+    bool is_editable();
 
     void save_state_to_file(bool save_record, const SoilString & filename);
     void load_state_from_file(const SoilString & filename);
     void log_state_file(const SoilString & state_filename, const SoilString & log_filename);
 
     virtual void set_text(const SoilString& str);
+    virtual void set_text(const char* str);
     //returns if font changed, doesnt call process()
     bool update_from_font_size(int fs);
     virtual void set_font_size(int fs);//
@@ -228,7 +231,7 @@ public:
     bool coord_in_text_content(int in_view_x,int in_view_y);
 
     virtual bool correct_coord_for_soil_text(int in_view_x,int in_view_y, int* in_text_x, int* in_text_y);
-    SoilString* text();//
+    SoilString* get_soil_string_pt();//
     bool process();
     virtual void draw();
 

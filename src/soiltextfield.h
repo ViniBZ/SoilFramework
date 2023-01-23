@@ -9,6 +9,7 @@ public:
     SoilTextField();
     SoilTextField(const SoilString& str);
     void init();
+    void set_editable(bool e);
 };
 
 #endif // SOILTEXTFIELD_H

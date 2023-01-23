@@ -2,7 +2,8 @@
 
 SoilTextWidget::SoilTextWidget(WIDGET_TYPE widget_type) : SoilWidget(widget_type)
 {
-    soil_string = &soil_text.soil_string;
+    //soil_string = &soil_text.soil_string;
+    soil_string_pt = soil_text.get_soil_string_pt();
     //MARKER: make REC dynamic and what else not...
     init_flag(&cursor_flag);
     scrollable = true;
@@ -174,7 +175,7 @@ void SoilTextWidget::set_text_record(bool set)
     REC_ACTIVE = set;
     if(REC_ACTIVE)
     {
-        REC.set_target_str(soil_string);
+        REC.set_target_str(soil_string_pt);
     }else{
         REC.unset_target_str();
     }
@@ -185,7 +186,7 @@ void SoilTextWidget::set_text_record(bool set, std::string storage_dir)
     REC_ACTIVE = set;
     if(REC_ACTIVE)
     {
-        REC.set_target_str(soil_string);
+        REC.set_target_str(soil_string_pt);
         REC.set_excess_storage(storage_dir);
         //REC.set_excess_storage(storage_dir);
     }else{
@@ -197,7 +198,7 @@ void SoilTextWidget::set_text_record(bool set, std::string storage_dir)
 void SoilTextWidget::set_str_text_fields()
 {
     /*
-    if(soil_string == NULL){return;}
+    if(soil_string_pt == NULL){return;}
     int cursor_2 = (-1);
     if(soil_text.text_selected)
     {
@@ -209,7 +210,7 @@ void SoilTextWidget::set_str_text_fields()
         }
     }
 
-    soil_string->set_last_rec_text_fields_before(soil_text.text_selected, soil_text.CURSOR, cursor_2);
+    soil_string_pt->set_last_rec_text_fields_before(soil_text.text_selected, soil_text.CURSOR, cursor_2);
     */
    //soil_text.set_str_text_fields();
 }
@@ -330,7 +331,21 @@ void SoilTextWidget::set_text_field_properties(Uint32 properties)
 //---------------------------------------------- GET TEXT LENGTH
 int SoilTextWidget::get_text_length()
 {
-    return soil_string->get_length();
+    return soil_string_pt->get_length();
+}
+//---------------------------------------------- GET SELECTION
+bool SoilTextWidget::get_selection(int* sel_s, int* sel_e)
+{
+    bool result = soil_text.text_selected;
+    *sel_s = soil_text.SEL_S;
+    *sel_e = soil_text.SEL_E;
+
+    return result;
+}
+//---------------------------------------------- IS EDITABLE
+bool SoilTextWidget::is_editable()
+{
+    return EDITABLE;
 }
 //---------------------------------------------- SAVE STATE TO FILE
 void SoilTextWidget::save_state_to_file(bool save_record, const SoilString & filename)
@@ -372,11 +387,11 @@ void SoilTextWidget::save_state_to_file(bool save_record, const SoilString & fil
 
     
     //TEXT_LENGTH
-    int len = soil_string->get_byte_n();
+    int len = soil_string_pt->get_byte_n();
     write_int_to_file(fd, len);
 
     //TEXT
-    soil_string->save_to_file(fd);
+    soil_string_pt->save_to_file(fd);
 
     if(!save_record || !REC_ACTIVE)
     {
@@ -429,11 +444,11 @@ void SoilTextWidget::load_state_from_file(const SoilString & filename)
     //TEXT
     REC.unset_target_str();
     //update_from_soil_text = false;
-    soil_string->load_from_file(fo, text_len);
+    soil_string_pt->load_from_file(fo, text_len);
     //update_from_soil_text = true;
-    REC.set_target_str(soil_string);
+    REC.set_target_str(soil_string_pt);
     
-    //soil_string->print_data();    
+    //soil_string_pt->print_data();    
 
     //fclose(fo);
     //delete[] fn;
@@ -1113,7 +1128,13 @@ void SoilTextWidget::log_state_file(const SoilString & state_filename, const Soi
 void SoilTextWidget::set_text(const SoilString& str)
 {
     soil_text.set_text(str);
-    //soil_string->replace_tabs_with_spaces();
+    //soil_string_pt->replace_tabs_with_spaces();
+}
+//---------------------------------------------- SET TEXT
+void SoilTextWidget::set_text(const char* str)
+{
+    soil_text.set_text(str);
+    //soil_string_pt->replace_tabs_with_spaces();
 }
 //---------------------------------------------- UPDATE FROM FONT SIZE
 bool SoilTextWidget::update_from_font_size(int fs)//doesnt call process()
@@ -1168,7 +1189,7 @@ SIZE SoilTextWidget::set_size_virt(int w,int h)
 //---------------------------------------------- ADJUST CONTENT VIEW TO CURSOR
 void SoilTextWidget::adjust_content_view_to_cursor()
 {
-    SOIL_RECT cursor_rect = soil_text.soil_rect_from_cursor_pos(soil_text.CURSOR, char_size);
+    SOIL_RECT cursor_rect = soil_text.soil_rect_from_cursor_pos(soil_text.get_cursor_pos(), char_size);
     int mov_x = 0;
     int mov_y = 0;
 
@@ -1235,10 +1256,10 @@ bool SoilTextWidget::correct_coord_for_soil_text(int in_view_x,int in_view_y, in
 
     return in_text;
 }
-//---------------------------------------------- TEXT
-SoilString* SoilTextWidget::text()
+//---------------------------------------------- GET SOIL STRING PT
+SoilString* SoilTextWidget::get_soil_string_pt()
 {
-    return soil_string;
+    return soil_string_pt;
 }
 //---------------------------------------------- PROCESS (SOIL TEXT CHANGED)
 bool SoilTextWidget::process()
@@ -1282,6 +1303,17 @@ bool SoilTextWidget::process()
             engine_control->push_SS(&SIGNALS[TEXT_CHANGED]);
         }
     }
+    if(soil_text.text_sel_changed)
+    {
+        if(SIGNALS[TEXT_CHANGED].active && engine_control_is_set)
+        {
+            SIGNALS[TEXT_SEL_CHANGED].arguments.text_sel_changed_arg.selected = soil_text.is_selected();
+            SIGNALS[TEXT_SEL_CHANGED].arguments.text_sel_changed_arg.sel_s = soil_text.SEL_S;
+            SIGNALS[TEXT_SEL_CHANGED].arguments.text_sel_changed_arg.sel_e = soil_text.SEL_E;
+            engine_control->push_SS(&SIGNALS[TEXT_SEL_CHANGED]);
+        }
+    }
+
 
     if(view_size.w > text_size.w)
     {
@@ -1333,7 +1365,7 @@ void SoilTextWidget::draw()
 
     //orig_rect.w = view_size.w;
     //orig_rect.h = view_size.h;
-    if(soil_text.text_changed || soil_text.cursor_changed)
+    if(soil_text.text_changed || soil_text.text_sel_changed || soil_text.cursor_changed)
     {        
         keep_cursor_vis = true;
     }
@@ -1347,10 +1379,8 @@ void SoilTextWidget::draw()
     draw_dest_rect.y += margin_top + content_pad;
     draw_dest_rect.w -= (2*content_pad);
     draw_dest_rect.h -= (2*content_pad);
-
-    soil_text.draw_text_rect_px(orig_rect, &pixmap, draw_dest_rect, font, font_size);    
     
-
+    soil_text.draw_text_rect_px(orig_rect, &pixmap, draw_dest_rect, font, font_size);    
 
     //MARKER:is the cursor blinking when there is no text?
 
@@ -1372,7 +1402,7 @@ void SoilTextWidget::draw()
         if(!cursor_flag.in_control && engine_control_is_set)
         {
             cursor_flag.value = 100;
-            engine_control->push_EF(&cursor_flag);
+            engine_control->push_OF(&cursor_flag);
         }
 
     }else{

@@ -657,11 +657,11 @@ void SoilUIElm::process_flag(int value)
 
 }
 //----------------------------------------------- INIT FLAG
-void SoilUIElm::init_flag(ELM_FLAG* flag)
+void SoilUIElm::init_flag(OBJ_FLAG* flag)
 {
 
 
-    flag->elm = (SoilUIElm*)this;
+    flag->obj = (SoilObject*)this;
     flag->interval = 0;
     flag->in_control = false;
     flag->next = NULL;

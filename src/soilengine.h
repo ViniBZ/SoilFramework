@@ -24,6 +24,15 @@ public:
     int win_h;
 
     SDL_GUI_PT sdl_gui_pt;
+
+    bool title_loaded;
+    SoilString window_title;
+
+    bool icon_loaded;
+    SDL_Surface* icon_surface;
+
+    SoilString resource_dir_str;
+
     SoilPixmap texture_pixmap;//it will have the maximum possible window size
     SoilPixmap arrows_pixmap;
     SoilEngineControl* engine_control;
@@ -46,13 +55,18 @@ public:
 
     //-------------------- SDL_Event signals
     //MARKER: is it the name you want for this variable? really?
-    SDL_EVENT_SIGNAL SDL_EVENT_SIGNALS[65536];
+    SDL_EVENT_SIGNAL* SDL_EVENT_SIGNALS;
 
     //PUBLIC METHODS
     SoilEngine();
+    ~SoilEngine();
     void init_sdl_event_signals();
     void set_main_layout(SoilLayout* l);
-    //void set_modal_layout();
+
+    //MARKER: review these and overflow with SoilString args
+    void set_window_title(const char * title);
+    void set_window_icon(const char * icon_fn);
+    void set_resources_subdir(const char * sub_dir);
     
     void load_alert_window();
     void set_control(SoilControl* c);

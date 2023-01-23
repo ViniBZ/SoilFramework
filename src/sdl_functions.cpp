@@ -17,7 +17,7 @@ SDL_Window* sdl_init_window(int w, int h)
     }
 
     //Create window
-    SDL_Window* window = SDL_CreateWindow( "FLUID 2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_HIDDEN);
+    SDL_Window* window = SDL_CreateWindow( "WINDOW TITLE", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_HIDDEN);
     if( window == NULL )
     {
         printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -134,6 +134,10 @@ void sdl_close(SDL_GUI_PT* pointers)
     {
         SDL_DestroyRenderer(pointers->sdl_renderer);
     }
+    if(pointers->icon_sdl_surface!=NULL)
+    {
+        SDL_FreeSurface(pointers->icon_sdl_surface);
+    }
     if(pointers->sdl_window!=NULL)
     {
         SDL_DestroyWindow(pointers->sdl_window);
@@ -152,6 +156,7 @@ SDL_GUI_PT sdl_init(int w,int h)
     res.sdl_window=NULL;
     res.sdl_renderer=NULL;
     res.sdl_texture=NULL;
+    res.icon_sdl_surface=NULL;
     //WINDOW
     res.sdl_window=sdl_init_window(w,h);
     if(res.sdl_window==NULL)
@@ -195,6 +200,7 @@ void sdl_reset_gui_pt(SDL_GUI_PT* sdl_gui_pt)
     sdl_gui_pt->sdl_window=NULL;
     sdl_gui_pt->sdl_renderer=NULL;
     sdl_gui_pt->sdl_texture=NULL;
+    sdl_gui_pt->icon_sdl_surface=NULL;
     sdl_gui_pt->pixel_density = 0;
     sdl_gui_pt->sdl_gui_loaded=false;
 }

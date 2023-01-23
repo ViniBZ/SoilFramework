@@ -3,10 +3,10 @@
 SoilEngineControl::SoilEngineControl()
 {
 
-    first_EF = NULL;
-    last_EF = NULL;
-    current_EF = NULL;
-    previous_EF = NULL;
+    first_OF = NULL;
+    last_OF = NULL;
+    current_OF = NULL;
+    previous_OF = NULL;
     EF_n = 0;
 
 
@@ -44,78 +44,78 @@ void SoilEngineControl::set_main_layout(SoilUIElm* m)
 //------------------------------------------------ PUSH
 //just append by changing the next variable in the flags
 //no new instance is created or memory allocated
-void SoilEngineControl::push_EF(ELM_FLAG* f)
+void SoilEngineControl::push_OF(OBJ_FLAG* f)
 {
     
     if(f == NULL){return;}
     if(f->in_control){return;}
     if(EF_n == 0)
     {
-        first_EF = f;
-        last_EF = f;
-        current_EF = f;
+        first_OF = f;
+        last_OF = f;
+        current_OF = f;
 
-        first_EF->prev = NULL;
-        first_EF->next = NULL;
+        first_OF->prev = NULL;
+        first_OF->next = NULL;
 
 
     }else{
 
         f->next = NULL;
-        f->prev = last_EF;
-        last_EF->next = f;
-        last_EF = f;
+        f->prev = last_OF;
+        last_OF->next = f;
+        last_OF = f;
 
-        if(current_EF == NULL){current_EF = last_EF;}
+        if(current_OF == NULL){current_OF = last_OF;}
     }
     f->in_control = true;
     EF_n++;
 }
 //------------------------------------------------ NEXT FLAG
-ELM_FLAG* SoilEngineControl::next_EF()
+OBJ_FLAG* SoilEngineControl::next_OF()
 {
 
-    if(current_EF == NULL)
+    if(current_OF == NULL)
     {
         return NULL;
     }
-    previous_EF = current_EF;
-    current_EF = current_EF->next;
+    previous_OF = current_OF;
+    current_OF = current_OF->next;
 
-    return previous_EF;
+    return previous_OF;
 }
 //------------------------------------------------ POP
-void SoilEngineControl::pop_EF()
+void SoilEngineControl::pop_OF()
 {
 
-    if(previous_EF == NULL)
+    if(previous_OF == NULL)
     {
 
         return;
     }
-    previous_EF->in_control = false;
-    if(previous_EF->prev == NULL)
+    previous_OF->in_control = false;
+    if(previous_OF->prev == NULL)
     {
-        first_EF = previous_EF->next;
+        first_OF = previous_OF->next;
     }else{
-        previous_EF->prev->next = previous_EF->next;
+        previous_OF->prev->next = previous_OF->next;
     }
-    if(previous_EF->next == NULL)
+    if(previous_OF->next == NULL)
     {
-        last_EF = previous_EF->prev;
+        last_OF = previous_OF->prev;
     }else{
-        previous_EF->next->prev = previous_EF->prev;
+        previous_OF->next->prev = previous_OF->prev;
     }
-    previous_EF = previous_EF->prev;
+    previous_OF = previous_OF->prev;
     EF_n--;
 
 }
 //------------------------------------------------ RESET
-void SoilEngineControl::reset_EF()
+void SoilEngineControl::reset_OF()
 {
 
-    previous_EF = NULL;
-    current_EF = first_EF;
+    previous_OF = NULL;
+    current_OF = first_OF;
 
 }
 //------------------------------------------------ PUSH

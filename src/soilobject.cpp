@@ -1,8 +1,13 @@
 #include "soilobject.h"
 
+int SoilObject::next_obj_id = 1;
+
 SoilObject::SoilObject()
 {
     //soilobject_receiver = NULL;
+
+    obj_id = next_obj_id;
+    next_obj_id++;
 
     soilobject_receiver[0] = NULL;
     soilobject_receiver[1] = NULL;
@@ -29,4 +34,9 @@ void SoilObject::set_soilobject_receiver(SoilObject* receiver)
 void SoilObject::set_soilobject_receiver(int receiver_i, SoilObject* receiver)
 {
     soilobject_receiver[receiver_i] = receiver;
+}
+// ----------------------------------------------- PROCESS FLAG
+void SoilObject::process_flag(int value)
+{
+
 }

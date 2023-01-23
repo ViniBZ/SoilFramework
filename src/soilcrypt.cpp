@@ -150,7 +150,7 @@ SoilString SoilCrypt::sha256(const SoilString& orig_str)
     while(i < 8)
     {
         
-        res_str.append((signed long long)hash_block[i], 16);
+        res_str.append((signed long long)hash_block[i], 16, 8, 8);
         i++;
     }
 

@@ -499,6 +499,40 @@ void SoilPixmap::spx_alpha_blend(const SoilPixmap& orig, SOIL_RECT orig_rect,SOI
         }
     }
 }
+// ---------------------------------------- SPX DRAW ANTI ALIASING LINE
+void SoilPixmap::spx_draw_aa_line(POINT start, POINT end, int bold, unsigned char color)
+{
+    if(loaded)
+    {
+        if(color_mode)
+        {
+            Uint32 full_color;
+            full_color = return_uint32_from_pix(color);
+            draw_aa_line(color_px_pt,size,start,end,bold,full_color);
+        }
+        if(mono_mode)
+        {
+            draw_aa_line(mono_px_pt,size,start,end,bold,color);
+        }
+    }
+}
+// ---------------------------------------- SPX DRAW ANTI ALIASING LINE
+void SoilPixmap::spx_draw_aa_line(POINT start, POINT end, int bold, Uint32 color)
+{
+    if(loaded)
+    {
+        if(color_mode)
+        {
+            draw_aa_line(color_px_pt,size,start,end,bold,color);
+        }
+        if(mono_mode)
+        {
+            unsigned char mono_color;
+            mono_color = return_uchar_from_pix(color);
+            draw_aa_line(mono_px_pt,size,start,end,bold,mono_color);
+        }
+    }
+}
 // ---------------------------------------- SPX DRAW H LINE
 void SoilPixmap::spx_draw_h_line(POINT start, int end_x, unsigned char color)
 {
