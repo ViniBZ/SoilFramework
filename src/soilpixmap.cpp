@@ -945,30 +945,7 @@ SOIL_RECT SoilPixmap::get_full_rect()const
 //it doesn't accepts negative w/h
 bool SoilPixmap::validate_rect_in_size(SOIL_RECT* rect)
 {
-    SOIL_RECT res_rect = *rect;
-
-    if(res_rect.w <= 0 || res_rect.h <= 0){return false;}
-
-    int res_rect_ex = res_rect.x + res_rect.w;
-    int res_rect_ey = res_rect.y + res_rect.h;
-    if(res_rect.x < 0)
-    {
-        res_rect.x = 0;
-    }else{
-        if(res_rect.x >= size.w){return false;}
-    }
-
-    if(res_rect.y < 0)
-    {
-        res_rect.y = 0;
-    }else{
-        if(res_rect.y >= size.h){return false;}
-    }
-
-    if(res_rect_ex > size.w){res_rect.w -= (res_rect_ex - size.w);}
-    if(res_rect_ey > size.h){res_rect.h -= (res_rect_ey - size.h);}
-
-    return true;
+    return adjust_rect_to_size(size, rect);
 }
 // ---------------------------------------- SAVE IMG FILE
 bool SoilPixmap::spx_save_img_file(std::string file_name,int format, int cmpr)

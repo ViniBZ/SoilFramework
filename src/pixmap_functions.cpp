@@ -96,7 +96,7 @@ bool validate_rect_in_size(SOIL_RECT* rect, SIZE size)
     SOIL_RECT res_rect = (*rect);
     bool res = true;
 
-    if(res_rect.w < 0 || res_rect.h < 0 || size.w < 0 || size.h < 0){return false;}
+    //if(res_rect.w < 0 || res_rect.h < 0 || size.w < 0 || size.h < 0){return false;}
 
     int res_rect_ex = res_rect.x + res_rect.w;
     int res_rect_ey = res_rect.y + res_rect.h;
@@ -155,52 +155,43 @@ bool validate_rect_in_size(SOIL_RECT* rect, SIZE size)
 // ------------------------------------------------------ ADJUST RECT TO SIZE
 bool adjust_rect_to_size(SIZE size, SOIL_RECT* rect)
 {
-    SOIL_RECT null_rect = {0,0,0,0};
+    set_rect_abs(rect);
     int ex = rect->x + rect->w;
     int ey = rect->y + rect->h;
 
-    if(rect->x < 0)
+    SOIL_RECT res_rect;
+    res_rect = *rect;
+
+    if(res_rect.x >= size.w || ex <= 0)
     {
-        rect->x = 0;
-        rect->w = ex;
+        return false;
     }else{
-        if(rect->x >= size.w)
+        if(res_rect.x < 0)
         {
-            *rect = null_rect;
-            return false;
+            res_rect.x = 0;
         }
+        if(ex > size.w)
+        {
+            ex = size.w;
+        }
+        res_rect.w = ex - res_rect.x;
     }
-    if(rect->y < 0)
+    if(res_rect.y >= size.h || ey <= 0)
     {
-        rect->y = 0;
-        rect->h = ey;
+        return false;
     }else{
-        if(rect->y >= size.h)
+        if(res_rect.y < 0)
         {
-            *rect = null_rect;
-            return false;
+            res_rect.y = 0;
         }
-    }
-    if(ex > size.w)
-    {
-        rect->w -= (ex - size.w);
-    }else{
-        if(ex <= 0)
+        if(ey > size.h)
         {
-            *rect = null_rect;
-            return false;
+            ey = size.h;
         }
+        res_rect.h = ey - res_rect.y;
     }
-    if(ey > size.h)
-    {
-        rect->h -= (ey - size.h);
-    }else{
-        if(ey <= 0)
-        {
-            *rect = null_rect;
-            return false;
-        }
-    }
+    *rect = res_rect;
+    
     return true;   
 
 }

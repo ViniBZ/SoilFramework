@@ -173,6 +173,8 @@ public:
     bool mouse_selected;
     bool selected;
 
+    int mouse_left_down_cursor;
+
     OBJ_FLAG cursor_flag;
     bool cursor_active;
     bool cursor_vis;

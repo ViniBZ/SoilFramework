@@ -721,12 +721,12 @@ bool SoilText::draw_text_rect_px(SOIL_RECT orig_rect, SoilPixmap* dest_pixmap, S
     SIZE char_size = SoilFont::get_char_size_from_font_size(font_size);
     
     //IMPORTANT:orig_rect is in pixels, the actual position in text depends on char_size/font_size
-    if(!validate_rect_in_size(&dest_rect, dest_pixmap->size)){return false;}
+    if(!adjust_rect_to_size(dest_pixmap->size, &dest_rect)){return false;}
 
     SIZE text_size;
     text_size.w = char_size.w * text_ch_size.w;
     text_size.h = char_size.h * text_ch_size.h;
-    if(!validate_rect_in_size(&orig_rect, text_size)){return false;}
+    if(!adjust_rect_to_size(dest_pixmap->size, &dest_rect)){return false;}
     if(orig_rect.w > dest_rect.w){orig_rect.w = dest_rect.w;}else{dest_rect.w = orig_rect.w;}
     if(orig_rect.h > dest_rect.h){orig_rect.h = dest_rect.h;}else{dest_rect.h = orig_rect.h;}
 
@@ -913,8 +913,6 @@ bool SoilText::draw_full_px(SoilPixmap* dest_pixmap, SoilFont* font, int font_si
 // this calls set_cursor_img
 void SoilText::draw_cursor(SOIL_RECT orig_rect, SoilPixmap* dest_pixmap, POINT text_dest_offset, SoilFont * font, int font_size, bool visible)
 {
-
-
     if(prev_drawn_CURSOR >= 0 && CURSOR != prev_drawn_CURSOR)
     {
         set_cursor_img(orig_rect, dest_pixmap, text_dest_offset, font, font_size, prev_drawn_CURSOR, false);
@@ -927,8 +925,6 @@ void SoilText::draw_cursor(SOIL_RECT orig_rect, SoilPixmap* dest_pixmap, POINT t
         prev_drawn_CURSOR = (-1);
     }
     cursor_changed = false;
-
-
 }
 //---------------------------------------------- DRAW CURSOR
 // this calls set_cursor_img

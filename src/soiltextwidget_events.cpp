@@ -31,6 +31,7 @@ void SoilTextWidget::mouse_left_down_event_virt(int X, int Y, int in_view_x, int
 
             int new_cursor;
             soil_text.cursor_pos_from_mouse(in_text_coord.x, in_text_coord.y, char_size, &new_cursor);
+            mouse_left_down_cursor = new_cursor;
             
             if(shift_pressed && cursor_active_before)
             {
@@ -98,12 +99,13 @@ void SoilTextWidget::mouse_remote_motion_event_virt(int X, int Y, int in_view_x,
 {
     if(SELECTABLE && mouse_left_down_text)
     {
-        POINT a;
+        //POINT a;
         POINT b;
-        correct_coord_for_soil_text(mouse_left_down_elm_x,mouse_left_down_elm_y, &a.x, &a.y);
+        //correct_coord_for_soil_text(mouse_left_down_elm_x,mouse_left_down_elm_y, &a.x, &a.y);
         correct_coord_for_soil_text(in_view_x,in_view_y, &b.x, &b.y);
-
-        bool sel_changed = soil_text.select_text(a,b,char_size);
+        int new_cursor;
+        soil_text.cursor_pos_from_mouse(b.x, b.y, char_size, &new_cursor);
+        bool sel_changed = soil_text.select_text(mouse_left_down_cursor, new_cursor);
         //soil_text.set_cursor(b.x,b.y,char_size);
 
         if(sel_changed)
@@ -122,6 +124,7 @@ void SoilTextWidget::set_as_mouse_left_down_elm_virt(bool f)
         if(CLICKABLE_ITEM){MARKED = true;}
     }else{
         //printf("\nSoilTextWidget::MARK FALSE");
+        mouse_left_down_cursor = 0;
         mouse_left_down_text = false;
         if(CLICKABLE_ITEM){MARKED = false;}
     }
