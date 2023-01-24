@@ -8,6 +8,7 @@ SoilTextWidget::SoilTextWidget(WIDGET_TYPE widget_type) : SoilWidget(widget_type
     init_flag(&cursor_flag);
     scrollable = true;
     PWD_MODE = false;
+    mouse_left_down_cursor = 0;
 
     //default_scrollbar_system is false because there is no pixmap for the entire text
     //if the text is bigger than the view
