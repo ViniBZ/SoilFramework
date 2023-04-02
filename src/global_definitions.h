@@ -1,4 +1,3 @@
-//abcdefh
 //  global_definitions.h
 //  Soil Framework
 //
