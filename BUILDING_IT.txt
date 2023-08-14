@@ -1,0 +1,10 @@
+Build SDL2 and SDL_image2 and have its include headers in your
+include path and the libraries in the path for the libraries.
+
+It might look something like this:
+
+g++ *.cpp -I/usr/include/SDL2 -I/usr/include/soilframework_include -lsoilframework -L/usr/lib -lSDL2 -lSDL2_image  -o YOUR_PROJECT
+
+
+
+
