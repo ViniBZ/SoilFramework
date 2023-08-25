@@ -492,46 +492,7 @@ struct STR_REC_NODE{
     //    REC STR FORMAT: total_rec_n...coord_0...sec_len_0...coord_1...sec_len_1...
     //    REC STR SIZE: 2 + (4*total_rec_n)
     //
-    //70  text was transformed in multiple places(specially designed for search_replace_str())
-    //    the coords of each transform will be coded in the rec_str[UNDO_I / REDO_I] SoilStrings
-    //    It is called multi_transform
-    //    match_case == true AND match_accent == true, which means the str to be replaced and the one
-    //    to replace have no variation in each occurrence only needing to be stored once in undo_rec / redo_rec
-    //    rec_pos: position in undo_rec / redo_rec
-    //    str_pos: irrelevant
-    //    ins_len: length of each individual section to be inserted
-    //    rem_len: length of each individual section to be removed
-    //    total_rec_n: number of sections to be transformed
-    //    REC STR FORMAT: total_rec_n...ins_str...coord_0...coord_1...coord_2. . .
-    //    REC STR SIZE: 2 + ins_len + (2 * total_rec_n)
-    //71: either match_case == false OR match_accent == false 
-    //    so it saves the replaced str section for every insertion to be made 
-    //    rec_pos: position in undo_rec / redo_rec
-    //    str_pos: irrelevant
-    //    ins_len: length of each individual section to be inserted
-    //    rem_len: length of each individual section to be removed
-    //    total_rec_n: number of sections to be transformed
-    //    REC STR FORMAT: total_rec_n...ins_str_0...coord_0...ins_str_1...coord_1. . .
-    //    REC STR SIZE: 2 + (ins_len + 2) * total_rec_n
-    //72: when UNDO is exec'ed it can create a node.type 70 if the original action was 70
-    //    or 72 if the original created a node.type 71
-    //    exec'ing REDO, if node.type is 70 it saves the replaced str only once
-    //    if node.type is 72, it saves all replaced sections as search_replace_str does
-    //    when match_case == false OR match_accent == false 
-    //
-    //    In summary, search_replace_str() makes either: node.type=70 OR node.type=71
-    //    UNDO (rec_op_search_str()) makes either: node.type=70 OR node.type=72
-    //    REDO (rec_op_search_str()) makes either: node.type=70 OR node.type=71
-    //
-    //80: space was removed in multiple places
-    //    the 80's were specially made for simplify(), trim()
-    //    when exec'ed it will insert the spaces
-    //    REC STR FORMAT: total_rec_n...total_ins_len...coord_0..space_ins_len_0...coord_1...space_ins_len_1
-    //    REC STR SIZE: 4 + (4*total_rec_n)
-    //81: space was added in multiple places
-    //    when exec'ed it will remove the spaces just like simplify
-    //    
-    //    each coded int in types 70, 71, 80 . . . is 2 SOIL_CHAR
+    
     ////////
     char order_id;
     char type;
